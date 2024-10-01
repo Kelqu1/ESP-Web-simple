@@ -1,43 +1,71 @@
 #include <WiFi.h>
 #include <WebServer.h>
+
 const char* ssid = "BTS_CIEL";
 const char* password = "ERIR1234";
-WebServer server(80); // Création d'un serveur WEB qui écoute sur le port 80
-const int led = 2; // Led intégrée à l'ESP32
-
-void PageHTML()
+WebServer server(80);
+const int led = 2;
+bool etatLed = 0;
+char texteEtatLed[2][10] = {"ÉTEINTE!","ALLUMÉE!"};
+void handleRoot()
 {
 String page = "<!DOCTYPE html>";
-page += "<html>";
+page += "<html lang='fr'>";
 page += "<head>";
-page += " <title>Page Projet SNBot</title>";
+page += " <title>Serveur ESP32</title>";
+
+page += " <meta name='viewport' content='width=device-width, initial-scale=1'>";
+
+page += "<style>";
+page += " html {";
+page += " font-family: Helvetica;";
+page += " margin: 0px auto;";
+page += " text-align: center;";
+page += " }";
+page += " h1 {";
+page += " color: #0F3376;";
+page += " padding: 2vh;";
+page += " }";
+page += " .button {";
+page += " background-color: #4CAF50; /* Vert */";
+page += " border: none;";
+page += " border-radius: 6px; /* Angle arrondi */";
+page += " color: white;";
+page += " padding: 15px 32px;";
+page += " text-align: center;";
+page += " text-decoration: none;";
+page += " font-size: 30px;";
+page += " }";
+
+page += " .button2 {";
+page += " background-color: #f44336; /* Rouge */";
+page += " }";
+page += "</style>";
 page += "</head>";
 page += "<body>";
-page += " <h1> Commande Led </h1>";
-page += " <p><a href='/on'><button>ON</button></a></p>";
-page += " <p><a href='/off'><button>OFF</button></a></p>";
+page += " <h1>Projet SNbot</h1>";
+page += " <p><a href='/on'><button class='button'>ON</button></a></p>";
+page += " <p><a href='/off'><button class='button button2'>OFF</button></a></p>";
 page += "</body>";
 page += "</html>";
-server.setContentLength(page.length());// Indique au navigateur la
-// longueur de la page
+server.setContentLength(page.length());
 server.send(200, "text/html", page);
-
-
 }
-void PageOn()
+void handleOn()
 {
+etatLed = 1;
 digitalWrite(led, HIGH);
-server.sendHeader("Location","/"); // Retour à la page d’accueil
-server.send(303); // Le serveur indique au navigateur qu’il l’envoie faire
-//une redirection
+server.sendHeader("Location","/");
+server.send(303);
 }
-void PageOff()
+void handleOff()
 {
+etatLed = 0;
 digitalWrite(led, LOW);
 server.sendHeader("Location","/");
 server.send(303);
 }
-void PageNotFound()
+void handleNotFound()
 {
 server.send(404, "text/plain", "404: Not found");
 }
@@ -46,6 +74,7 @@ void setup()
 Serial.begin(9600);
 delay(1000);
 Serial.println("\n");
+
 pinMode(led, OUTPUT);
 digitalWrite(led, LOW);
 WiFi.persistent(false);
@@ -60,15 +89,14 @@ Serial.println("\n");
 Serial.println("Connexion etablie!");
 Serial.print("Adresse IP: ");
 Serial.println(WiFi.localIP());
-server.on("/", PageHTML);
-server.on("/on", PageOn);
-
-server.on("/off", PageOff);
-server.onNotFound(PageNotFound);
+server.on("/", handleRoot);
+server.on("/on", handleOn);
+server.on("/off", handleOff);
+server.onNotFound(handleNotFound);
 server.begin();
 Serial.println("Serveur web actif!");
 }
 void loop()
 {
-server.handleClient();// Attente de demande du client
+server.handleClient();
 }
