@@ -1,5 +1,8 @@
 #include <WiFi.h>
 #include <WebServer.h>
+// Potentiomètre relié à GPIO 34 (Analog ADC1_CH6)
+const int potPin = 34;
+
 const char* ssid = "BTS_CIEL";
 const char* password = "ERIR1234";
 WebServer server(80);
@@ -17,9 +20,10 @@ page += " <meta http-equiv='refresh' content='60' name='viewport' content='width
 
 page += " <link rel='stylesheet' href='https://www.w3schools.com/w3css/4/w3.css'>";
 page += "</head>";
+
 page += "<body>";
 page += " <div class='w3-card w3-blue w3-padding-small w3-jumbo w3-center'>";
-page += " <p>ÉTAT LED: "; page += texteEtatLed[etatLed]; + "</p>";
+page += " <p>Valeur Potentiomètre : "; page += String(analogRead(potPin)); + "</p>";
 page += " </div>";
 page += " <div class='w3-bar'>";
 page += " <a href='/on' class='w3-bar-item w3-button w3-border w3-jumbo' style='width:50%; height:50%;'>ON</a>";
@@ -27,9 +31,8 @@ page += " <a href='/off' class='w3-bar-item w3-button w3-border w3-jumbo' style=
 page += " </div>";
 page += " <div class='w3-center w3-padding-16'>";
 page += " <p>Serveur hébergé sur un ESP32</p>";
-page += " <i>Projet SKYBot</i>";
+page += " <i>Projet SNBot</i>";
 page += " </div>";
-
 page += "</body>";
 page += "</html>";
 server.setContentLength(page.length());
@@ -53,6 +56,7 @@ void handleNotFound()
 {
 server.send(404, "text/plain", "404: Not found");
 }
+
 void setup()
 {
 Serial.begin(9600);
@@ -68,7 +72,6 @@ while (WiFi.status() != WL_CONNECTED)
 Serial.print(".");
 delay(100);
 }
-
 Serial.println("\n");
 Serial.println("Connexion etablie!");
 Serial.print("Adresse IP: ");
