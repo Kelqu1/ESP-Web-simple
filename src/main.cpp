@@ -15,12 +15,9 @@ String page = "<!DOCTYPE html>";
 page += "<html lang='fr'>";
 page += "<head>";
 page += " <title>Serveur ESP32</title>";
-
 page += " <meta http-equiv='refresh' content='60' name='viewport' content='width=device-width, initial-scale=1' charset='UTF-8' />";
-
 page += " <link rel='stylesheet' href='https://www.w3schools.com/w3css/4/w3.css'>";
 page += "</head>";
-
 page += "<body>";
 page += " <div class='w3-card w3-blue w3-padding-small w3-jumbo w3-center'>";
 page += " <p>Valeur Potentiomètre : "; page += String(analogRead(potPin)); + "</p>";
